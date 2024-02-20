@@ -4,11 +4,13 @@ import lombok.*;
 import org.avegarlabs.chargestationservice.models.enums.ChargerType;
 import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,4 +30,12 @@ public class ChargeStation {
     private ChargerType chargerType;
     private int numberOfChargingPoints;
     private ChargingStationStatus status;
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy="station", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ChargeStationUse> stationUseSet;
 }
