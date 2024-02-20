@@ -3,7 +3,9 @@ package org.avegarlabs.chargestationservice.models;
 import lombok.*;
 import org.avegarlabs.chargestationservice.models.enums.ChargerType;
 import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -30,10 +32,12 @@ public class ChargeStation {
     private ChargerType chargerType;
     private int numberOfChargingPoints;
     private ChargingStationStatus status;
-    @CreatedDate
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy="station", cascade = CascadeType.ALL, orphanRemoval = true)

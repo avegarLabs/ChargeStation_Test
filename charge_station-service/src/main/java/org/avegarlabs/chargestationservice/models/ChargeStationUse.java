@@ -1,6 +1,7 @@
 package org.avegarlabs.chargestationservice.models;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -22,7 +23,8 @@ public class ChargeStationUse {
     private String userId;
     private double charge_time;
 
-    @CreatedDate
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne
