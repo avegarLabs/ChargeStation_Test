@@ -2,7 +2,7 @@ package org.avegarlabs.chargestationservice.models.enums;
 
 public enum ChargerType {
     AC("AC Charger"),
-    DC_FAST_CHARGE("DC Fast Charger");
+    DC("DC Fast Charger");
 
     private final String displayName;
 
