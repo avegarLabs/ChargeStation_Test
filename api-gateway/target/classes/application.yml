@@ -1,0 +1,32 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service-user
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - AuthenticationFilter
+
+        - id: user-service-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**
+
+
+        - id: charge-station-service
+          uri: lb://charge-station-service
+          predicates:
+            - Path=/api/station/**
+          filters:
+            - AuthenticationFilter
+
+
+  application:
+      name: api-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:admin@localhost:8761/eureka
