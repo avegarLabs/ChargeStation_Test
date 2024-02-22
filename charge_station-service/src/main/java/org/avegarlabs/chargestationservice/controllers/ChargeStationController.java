@@ -1,9 +1,13 @@
 package org.avegarlabs.chargestationservice.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.avegarlabs.chargestationservice.dto.ChargeStationListItems;
 import org.avegarlabs.chargestationservice.dto.ChargeStationModel;
+import org.avegarlabs.chargestationservice.dto.ChargeStationUseModel;
+import org.avegarlabs.chargestationservice.dto.ChargeStationUseResponse;
 import org.avegarlabs.chargestationservice.services.ChargeStationService;
+import org.avegarlabs.chargestationservice.services.ChargeStationUseService;
 import org.avegarlabs.chargestationservice.util.ErrorMessage;
 import org.avegarlabs.chargestationservice.util.SuccessMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/station")
 @CrossOrigin
+@Slf4j
 public class ChargeStationController {
 
     @Autowired
     ChargeStationService service;
+
+    @Autowired
+    ChargeStationUseService useService;
 
     @GetMapping
     public ResponseEntity<Object> getStations() {
@@ -64,11 +72,32 @@ public class ChargeStationController {
         }
     }
 
-    @GetMapping("/change/{id}")
-    public ResponseEntity<Object> changeStatus(@PathVariable String id) {
+    @PostMapping("/use" )
+    public ResponseEntity<Object> charge(@RequestBody ChargeStationUseModel model) {
         try {
-            ChargeStationListItems item = service.updateStationState(id);
-            return ResponseEntity.status(HttpStatus.OK).body(item);
+            String item = useService.chargeInStation(model);
+            log.info("Success", item);
+            return ResponseEntity.status(HttpStatus.OK).body(new SuccessMessage("Successfully completed the operation."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<Object> showChargeStationStatus(@RequestParam("token") String id) {
+        try {
+            String status = service.getChargeStationStatus(id);
+            return ResponseEntity.status(HttpStatus.OK).body(status);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/{userId}/charges")
+    public ResponseEntity<Object> showChargeStationUsesByUserId(@PathVariable String userId) {
+        try {
+            List<ChargeStationUseResponse> listItems = useService.getUserActivity(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(listItems);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }

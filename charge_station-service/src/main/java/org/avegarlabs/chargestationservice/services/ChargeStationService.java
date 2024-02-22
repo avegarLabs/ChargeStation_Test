@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,28 +19,28 @@ public class ChargeStationService {
     ChargeStationRepository repository;
 
 
-    public List<ChargeStationListItems> allStations(){
+    public List<ChargeStationListItems> allStations() {
         List<ChargeStation> list = repository.findAll();
         return list.stream().map(this::mapChargeStationToChargeStationListItems).collect(Collectors.toList());
     }
 
-    public ChargeStationListItems persistStation(ChargeStationModel stationModel){
+    public ChargeStationListItems persistStation(ChargeStationModel stationModel) {
         ChargeStation station = mapChargeStationModelToChargeStation(stationModel);
         repository.save(station);
         return mapChargeStationToChargeStationListItems(station);
     }
 
-    public ChargeStationListItems updateStation(String id, ChargeStationModel stationModel){
+    public ChargeStationListItems updateStation(String id, ChargeStationModel stationModel) {
         ChargeStation station = updateStationData(id, stationModel);
         repository.save(station);
         return mapChargeStationToChargeStationListItems(station);
     }
 
-    public void deleteStation(String id){
+    public void deleteStation(String id) {
         repository.deleteById(id);
     }
 
-    public ChargeStationListItems updateStationState(String id){
+    public ChargeStationListItems updateStationState(String id) {
         ChargeStation station = repository.findById(id).get();
         if (station.getStatus().equals(ChargingStationStatus.AVAILABLE)) {
             station.setStatus(ChargingStationStatus.IN_USE);
@@ -50,9 +51,17 @@ public class ChargeStationService {
         return mapChargeStationToChargeStationListItems(station);
     }
 
+    public String getChargeStationStatus(String id) {
+        Optional<ChargeStation> chargeStation = repository.findById(id);
+        if (chargeStation.isEmpty()) {
+            throw new RuntimeException("Station with id: " + id + "not found");
+        } else {
+            return chargeStation.get().getStatus().getDisplayName();
+        }
+    }
 
 
-    private ChargeStationListItems mapChargeStationToChargeStationListItems(ChargeStation station) {
+    public ChargeStationListItems mapChargeStationToChargeStationListItems(ChargeStation station) {
         return ChargeStationListItems.builder()
                 .id(station.getId())
                 .address(station.getAddress())
@@ -72,12 +81,12 @@ public class ChargeStationService {
                 .latitude(model.getLatitude())
                 .longitude(model.getLongitude())
                 .numberOfChargingPoints(model.getNumberOfChargingPoints())
-                .status(ChargingStationStatus.AVAILABLE)
+                .status(model.getStatus())
                 .chargerType(model.getChargerType())
                 .build();
     }
 
-    private ChargeStation updateStationData(String stationId, ChargeStationModel model){
+    private ChargeStation updateStationData(String stationId, ChargeStationModel model) {
         ChargeStation station = repository.findById(stationId).get();
         station.setAddress(model.getAddress());
         station.setLongitude(model.getLongitude());
@@ -87,4 +96,6 @@ public class ChargeStationService {
         station.setStatus(model.getStatus());
         return station;
     }
+
+
 }

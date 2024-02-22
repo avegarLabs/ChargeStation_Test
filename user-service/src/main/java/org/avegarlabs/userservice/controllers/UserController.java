@@ -46,4 +46,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<Object> validateToken(@RequestParam("id") String id) {
+        try {
+            UserListItem userListItem = service.getById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(userListItem);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
  }

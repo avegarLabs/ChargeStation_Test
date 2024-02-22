@@ -63,4 +63,17 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }
     }
+
+    @GetMapping("/validate")
+    public ResponseEntity<Object> validateToken(@RequestParam("token") String token) {
+        try {
+            jwtService.tokenValidation(token);
+            return ResponseEntity.status(HttpStatus.OK).body("Token is valid");
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
+
 }

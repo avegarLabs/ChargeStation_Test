@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -29,6 +30,13 @@ public class UserService {
         User user = mapUserModelToUser(model);
         repository.save(user);
         return mapUserToUserListItem(user);
+    }
+
+    public UserListItem getById(String id){
+        Optional<User> user = repository.findById(id);
+        if(user.isEmpty())
+            throw new RuntimeException(" User with id: " + id + " not found");
+        return mapUserToUserListItem(user.get());
     }
 
     public void deleteUser(String id){
