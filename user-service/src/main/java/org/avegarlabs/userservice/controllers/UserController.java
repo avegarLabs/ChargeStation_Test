@@ -2,6 +2,7 @@ package org.avegarlabs.userservice.controllers;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.avegarlabs.userservice.dto.UserListItem;
 import org.avegarlabs.userservice.services.UserService;
 import org.avegarlabs.userservice.util.ErrorMessage;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 @CrossOrigin
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -47,9 +49,11 @@ public class UserController {
     }
 
     @GetMapping("/check")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> validateToken(@RequestParam("id") String id) {
         try {
             UserListItem userListItem = service.getById(id);
+            log.info("Verificando User : " + userListItem.getName());
             return ResponseEntity.status(HttpStatus.OK).body(userListItem);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));

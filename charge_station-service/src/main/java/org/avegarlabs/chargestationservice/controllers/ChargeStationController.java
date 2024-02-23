@@ -11,6 +11,7 @@ import org.avegarlabs.chargestationservice.services.ChargeStationUseService;
 import org.avegarlabs.chargestationservice.util.ErrorMessage;
 import org.avegarlabs.chargestationservice.util.SuccessMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class ChargeStationController {
         try {
             List<ChargeStationListItems> listItems = service.allStations();
             return ResponseEntity.status(HttpStatus.OK).body(listItems);
-            } catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }
     }
@@ -72,38 +73,41 @@ public class ChargeStationController {
         }
     }
 
-    @PostMapping("/use" )
-    public ResponseEntity<Object> charge(@RequestBody ChargeStationUseModel model) {
+    @PostMapping("/use")
+    public ResponseEntity<Object> charge(@RequestBody ChargeStationUseModel model, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {
-            String item = useService.chargeInStation(model);
-            log.info("Success", item);
+            String token = null;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                token = authorizationHeader.substring(7);
+            }
+            String item = useService.chargeInStation(model, token);
             return ResponseEntity.status(HttpStatus.OK).body(new SuccessMessage("Successfully completed the operation."));
         } catch (Exception e) {
+            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<Object> showChargeStationStatus(@RequestParam("token") String id) {
-        try {
-            String status = service.getChargeStationStatus(id);
-            return ResponseEntity.status(HttpStatus.OK).body(status);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        @GetMapping("/status")
+        public ResponseEntity<Object> showChargeStationStatus (@RequestParam("id") String id){
+            try {
+                String status = service.getChargeStationStatus(id);
+                return ResponseEntity.status(HttpStatus.OK).body(status);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+            }
         }
-    }
 
-    @GetMapping("/{userId}/charges")
-    public ResponseEntity<Object> showChargeStationUsesByUserId(@PathVariable String userId) {
-        try {
-            List<ChargeStationUseResponse> listItems = useService.getUserActivity(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(listItems);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        @GetMapping("/{userId}/charges")
+        public ResponseEntity<Object> showChargeStationUsesByUserId (@PathVariable String userId){
+            try {
+                List<ChargeStationUseResponse> listItems = useService.getUserActivity(userId);
+                return ResponseEntity.status(HttpStatus.OK).body(listItems);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+            }
         }
+
+
     }
-
-
-
-}
 

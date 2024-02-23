@@ -3,10 +3,12 @@ package org.avegarlabs.chargestationservice.services;
 import org.avegarlabs.chargestationservice.dto.ChargeStationListItems;
 import org.avegarlabs.chargestationservice.dto.ChargeStationUseModel;
 import org.avegarlabs.chargestationservice.dto.ChargeStationUseResponse;
+import org.avegarlabs.chargestationservice.dto.UserListItem;
 import org.avegarlabs.chargestationservice.models.ChargeStation;
 import org.avegarlabs.chargestationservice.models.ChargeStationUse;
 import org.avegarlabs.chargestationservice.repositories.ChargeStationRepository;
 import org.avegarlabs.chargestationservice.repositories.ChargeStationUseRepository;
+import org.avegarlabs.chargestationservice.services.client.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +26,12 @@ public class ChargeStationUseService {
     @Autowired
     ChargeStationService stationService;
 
+    @Autowired
+    UserServiceClient userServiceClient;
 
-    public String chargeInStation(ChargeStationUseModel stationModel){
-        ChargeStationUse station = mapChargeStationUseModelToChargeStationUse(stationModel);
+
+    public String chargeInStation(ChargeStationUseModel stationModel, String token){
+        ChargeStationUse station = mapChargeStationUseModelToChargeStationUse(stationModel, token);
         repository.save(station);
         return station.getId();
     }
@@ -37,10 +42,11 @@ public class ChargeStationUseService {
     }
 
 
-   private ChargeStationUse mapChargeStationUseModelToChargeStationUse(ChargeStationUseModel model) {
+   private ChargeStationUse mapChargeStationUseModelToChargeStationUse(ChargeStationUseModel model, String authorizationToken ) {
+       UserListItem user = userServiceClient.fecthUserData(model.getUserId(), authorizationToken);
         ChargeStation station = stationRepository.findById(model.getStationId()).get();
         return ChargeStationUse.builder()
-                .userId(model.getUserId())
+                .userId(user.getId())
                 .station(station)
                 .charge_time(model.getCharge_time())
                 .build();

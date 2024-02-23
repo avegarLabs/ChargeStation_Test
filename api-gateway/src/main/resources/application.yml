@@ -14,7 +14,6 @@ spring:
           predicates:
             - Path=/api/auth/**
 
-
         - id: charge-station-service
           uri: lb://charge-station-service
           predicates:
