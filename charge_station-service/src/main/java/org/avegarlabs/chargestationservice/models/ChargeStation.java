@@ -23,6 +23,7 @@ public class ChargeStation {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
     private String id;
+    private String description;
     private String address;
     private double latitude;
     private double longitude;

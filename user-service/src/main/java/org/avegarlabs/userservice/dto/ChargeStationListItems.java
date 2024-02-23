@@ -1,4 +1,4 @@
-package org.avegarlabs.chargestationservice.dto;
+package org.avegarlabs.userservice.dto;
 
 import lombok.*;
 
@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Setter
 public class ChargeStationListItems {
     private String id;
-    private String description;
     private String address;
     private double latitude;
     private double longitude;

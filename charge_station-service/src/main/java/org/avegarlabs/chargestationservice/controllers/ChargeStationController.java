@@ -80,8 +80,8 @@ public class ChargeStationController {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 token = authorizationHeader.substring(7);
             }
-            String item = useService.chargeInStation(model, token);
-            return ResponseEntity.status(HttpStatus.OK).body(new SuccessMessage("Successfully completed the operation."));
+            String status = useService.chargeInStation(model, token);
+            return ResponseEntity.status(HttpStatus.OK).body(new SuccessMessage("Successfully completed the operation, station in:  "+ status ));
         } catch (Exception e) {
             log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));

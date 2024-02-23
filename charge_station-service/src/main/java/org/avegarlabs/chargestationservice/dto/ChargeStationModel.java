@@ -11,6 +11,7 @@ import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
 @Getter
 @Setter
 public class ChargeStationModel {
+    private String description;
     private String address;
     private double latitude;
     private double longitude;

@@ -1,5 +1,6 @@
 package org.avegarlabs.userservice.services;
 
+import org.avegarlabs.userservice.dto.ChargeStationUseResponse;
 import org.avegarlabs.userservice.dto.UserListItem;
 import org.avegarlabs.userservice.dto.UserModel;
 import org.avegarlabs.userservice.models.User;
@@ -19,6 +20,9 @@ public class UserService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    ChargeStationClientService clientService;
 
     public List<UserListItem> allUsers() {
         return repository.findAll().stream().map(this::mapUserToUserListItem).toList();
@@ -41,6 +45,11 @@ public class UserService {
 
     public void deleteUser(String id){
         repository.deleteById(id);
+    }
+
+
+    public List<ChargeStationUseResponse> getChargesByUser(String id){
+        return clientService.fecthUserActivity(id);
     }
 
 

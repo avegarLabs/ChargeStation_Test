@@ -64,6 +64,7 @@ public class ChargeStationService {
     public ChargeStationListItems mapChargeStationToChargeStationListItems(ChargeStation station) {
         return ChargeStationListItems.builder()
                 .id(station.getId())
+                .description(station.getDescription())
                 .address(station.getAddress())
                 .longitude(station.getLongitude())
                 .latitude(station.getLatitude())
@@ -77,6 +78,7 @@ public class ChargeStationService {
 
     private ChargeStation mapChargeStationModelToChargeStation(ChargeStationModel model) {
         return ChargeStation.builder()
+                .description(model.getDescription())
                 .address(model.getAddress())
                 .latitude(model.getLatitude())
                 .longitude(model.getLongitude())
@@ -88,6 +90,7 @@ public class ChargeStationService {
 
     private ChargeStation updateStationData(String stationId, ChargeStationModel model) {
         ChargeStation station = repository.findById(stationId).get();
+        station.setDescription(model.getDescription());
         station.setAddress(model.getAddress());
         station.setLongitude(model.getLongitude());
         station.setLatitude(model.getLatitude());

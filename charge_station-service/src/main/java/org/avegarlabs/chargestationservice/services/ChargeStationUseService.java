@@ -33,7 +33,8 @@ public class ChargeStationUseService {
     public String chargeInStation(ChargeStationUseModel stationModel, String token){
         ChargeStationUse station = mapChargeStationUseModelToChargeStationUse(stationModel, token);
         repository.save(station);
-        return station.getId();
+        ChargeStationListItems item =  stationService.updateStationState(station.getId());
+        return item.getStatus();
     }
 
     public List<ChargeStationUseResponse> getUserActivity(String userId){

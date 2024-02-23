@@ -3,6 +3,7 @@ package org.avegarlabs.userservice.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.avegarlabs.userservice.dto.ChargeStationUseResponse;
 import org.avegarlabs.userservice.dto.UserListItem;
 import org.avegarlabs.userservice.services.UserService;
 import org.avegarlabs.userservice.util.ErrorMessage;
@@ -55,6 +56,16 @@ public class UserController {
             UserListItem userListItem = service.getById(id);
             log.info("Verificando User : " + userListItem.getName());
             return ResponseEntity.status(HttpStatus.OK).body(userListItem);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+    @GetMapping("/activity/{id}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Object> userActivity(@PathVariable String id) {
+        try {
+            List<ChargeStationUseResponse> userChargesList = service.getChargesByUser(id);
+            return ResponseEntity.status(HttpStatus.OK).body(userChargesList);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }
