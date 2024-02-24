@@ -1,10 +1,12 @@
 package org.avegarlabs.chargestationservice.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.avegarlabs.chargestationservice.dto.ChargeStationListItems;
 import org.avegarlabs.chargestationservice.dto.ChargeStationModel;
 import org.avegarlabs.chargestationservice.models.ChargeStation;
 import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
 import org.avegarlabs.chargestationservice.repositories.ChargeStationRepository;
+import org.avegarlabs.chargestationservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +15,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ChargeStationService {
 
     @Autowired
     ChargeStationRepository repository;
+
+    @Autowired
+    CreateMoniker moniker;
 
 
     public List<ChargeStationListItems> allStations() {
@@ -60,6 +66,13 @@ public class ChargeStationService {
         }
     }
 
+    public ChargeStationListItems getByMoniker(String moniker){
+        Optional<ChargeStation> chargeStation = repository.findByMoniker(moniker);
+        if (chargeStation.isEmpty())
+            throw new RuntimeException("Station with moniker: " + moniker + "not found");
+        return mapChargeStationToChargeStationListItems(chargeStation.get());
+    }
+
 
     public ChargeStationListItems mapChargeStationToChargeStationListItems(ChargeStation station) {
         return ChargeStationListItems.builder()
@@ -70,9 +83,8 @@ public class ChargeStationService {
                 .latitude(station.getLatitude())
                 .chargerType(station.getChargerType().getDisplayName())
                 .numberOfChargingPoints(station.getNumberOfChargingPoints())
-                .createdAt(station.getCreatedAt())
-                .updatedAt(station.getUpdatedAt())
                 .status(station.getStatus().getDisplayName())
+                .moniker(station.getMoniker())
                 .build();
     }
 
@@ -85,6 +97,7 @@ public class ChargeStationService {
                 .numberOfChargingPoints(model.getNumberOfChargingPoints())
                 .status(model.getStatus())
                 .chargerType(model.getChargerType())
+                .moniker(moniker.createMoniker(model.getDescription()))
                 .build();
     }
 

@@ -54,7 +54,7 @@ public class UserController {
     public ResponseEntity<Object> validateToken(@RequestParam("id") String id) {
         try {
             UserListItem userListItem = service.getById(id);
-            log.info("Verificando User : " + userListItem.getName());
+            log.info("checking User : " + userListItem.getName());
             return ResponseEntity.status(HttpStatus.OK).body(userListItem);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
@@ -66,6 +66,17 @@ public class UserController {
         try {
             List<ChargeStationUseResponse> userChargesList = service.getChargesByUser(id);
             return ResponseEntity.status(HttpStatus.OK).body(userChargesList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
+    @GetMapping("/details/{moniker}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Object> findByMoniker(@PathVariable String moniker) {
+        try {
+            UserListItem user = service.getByMoniker(moniker);
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
         }

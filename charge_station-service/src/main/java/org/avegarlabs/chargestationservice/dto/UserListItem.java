@@ -17,4 +17,5 @@ public class UserListItem {
     private String email;
     private String password;
     private List<String> roleList;
+    private String moniker;
 }

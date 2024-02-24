@@ -19,6 +19,5 @@ public class ChargeStationListItems {
     private String chargerType;
     private int numberOfChargingPoints;
     private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String moniker;
 }

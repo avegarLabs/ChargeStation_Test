@@ -6,6 +6,7 @@ import org.avegarlabs.userservice.dto.UserModel;
 import org.avegarlabs.userservice.models.User;
 import org.avegarlabs.userservice.models.enums.UserRoles;
 import org.avegarlabs.userservice.repositories.UserRepository;
+import org.avegarlabs.userservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ public class UserService {
 
     @Autowired
     ChargeStationClientService clientService;
+
+    @Autowired
+    CreateMoniker moniker;
 
     public List<UserListItem> allUsers() {
         return repository.findAll().stream().map(this::mapUserToUserListItem).toList();
@@ -43,6 +47,14 @@ public class UserService {
         return mapUserToUserListItem(user.get());
     }
 
+    public UserListItem getByMoniker(String moniker){
+        Optional<User> user = repository.findByMoniker(moniker);
+        if (user.isEmpty())
+            throw new RuntimeException(" User with moniker: " + moniker + " not found");
+
+        return mapUserToUserListItem(user.get());
+    }
+
     public void deleteUser(String id){
         repository.deleteById(id);
     }
@@ -57,10 +69,12 @@ public class UserService {
         List<String> roles = user.getRoleList().stream().map(Enum::name).toList();
         return UserListItem.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .name(user.getName())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .roleList(roles)
+                .moniker(user.getMoniker())
                 .build();
     }
 
@@ -72,6 +86,7 @@ public class UserService {
                 .email(model.getEmail())
                 .password(passwordEncoder.encode(model.getPassword()))
                 .roleList(userRolesList)
+                .moniker(moniker.createMoniker(model.getName()))
                 .build();
     }
 }

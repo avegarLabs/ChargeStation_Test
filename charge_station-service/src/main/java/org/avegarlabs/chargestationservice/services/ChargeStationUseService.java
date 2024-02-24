@@ -1,5 +1,6 @@
 package org.avegarlabs.chargestationservice.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.avegarlabs.chargestationservice.dto.ChargeStationListItems;
 import org.avegarlabs.chargestationservice.dto.ChargeStationUseModel;
 import org.avegarlabs.chargestationservice.dto.ChargeStationUseResponse;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ChargeStationUseService {
 
     @Autowired
@@ -30,11 +32,12 @@ public class ChargeStationUseService {
     UserServiceClient userServiceClient;
 
 
-    public String chargeInStation(ChargeStationUseModel stationModel, String token){
+    public ChargeStationListItems chargeInStation(ChargeStationUseModel stationModel, String token){
         ChargeStationUse station = mapChargeStationUseModelToChargeStationUse(stationModel, token);
+        ChargeStationListItems item =  stationService.updateStationState(station.getStation().getId());
         repository.save(station);
-        ChargeStationListItems item =  stationService.updateStationState(station.getId());
-        return item.getStatus();
+        log.info("Update Station State", item.getStatus());
+        return item;
     }
 
     public List<ChargeStationUseResponse> getUserActivity(String userId){
@@ -46,6 +49,7 @@ public class ChargeStationUseService {
    private ChargeStationUse mapChargeStationUseModelToChargeStationUse(ChargeStationUseModel model, String authorizationToken ) {
        UserListItem user = userServiceClient.fecthUserData(model.getUserId(), authorizationToken);
         ChargeStation station = stationRepository.findById(model.getStationId()).get();
+        log.info(station.getDescription(), station.getStatus());
         return ChargeStationUse.builder()
                 .userId(user.getId())
                 .station(station)

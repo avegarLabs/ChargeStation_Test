@@ -24,6 +24,7 @@ public class User {
     private String email;
     private String password;
     private List<UserRoles> roleList;
+    private String moniker;
 
     @CreatedDate
     private LocalDateTime createdAt;

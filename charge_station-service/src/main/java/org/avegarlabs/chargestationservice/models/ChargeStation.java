@@ -30,6 +30,7 @@ public class ChargeStation {
     private ChargerType chargerType;
     private int numberOfChargingPoints;
     private ChargingStationStatus status;
+    private String moniker;
 
     @CreationTimestamp
     @Column(updatable = false)
