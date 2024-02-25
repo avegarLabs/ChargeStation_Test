@@ -13,6 +13,7 @@ public class RouterValidator {
             "/api/auth/register",
             "/api/auth/authenticate",
             "/api/auth/validate",
+            "/api/public",
             "/eureka"
     );
 

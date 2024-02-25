@@ -92,7 +92,7 @@ public class ChargeStationController {
         public ResponseEntity<Object> showChargeStationStatus (@RequestParam("id") String id){
             try {
                 String status = service.getChargeStationStatus(id);
-                return ResponseEntity.status(HttpStatus.OK).body(status);
+                return ResponseEntity.status(HttpStatus.OK).body(new SuccessMessage(status));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
             }

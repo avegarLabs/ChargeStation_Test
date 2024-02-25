@@ -21,6 +21,13 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: charge-station-service-public
+          uri: lb://charge-station-service
+          predicates:
+            - Path=/api/public/**
+
+
+
 
   application:
       name: api-gateway
