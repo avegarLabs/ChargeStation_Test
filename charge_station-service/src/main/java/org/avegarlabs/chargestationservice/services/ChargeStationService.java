@@ -62,7 +62,7 @@ public class ChargeStationService {
         if (chargeStation.isEmpty()) {
             throw new RuntimeException("Station with id: " + id + "not found");
         } else {
-            return chargeStation.get().getStatus().getDisplayName();
+            return chargeStation.get().getStatus().name();
         }
     }
 
@@ -81,7 +81,7 @@ public class ChargeStationService {
                 .address(station.getAddress())
                 .longitude(station.getLongitude())
                 .latitude(station.getLatitude())
-                .chargerType(station.getChargerType().getDisplayName())
+                .chargerType(station.getChargerType().name())
                 .numberOfChargingPoints(station.getNumberOfChargingPoints())
                 .status(station.getStatus().getDisplayName())
                 .moniker(station.getMoniker())
