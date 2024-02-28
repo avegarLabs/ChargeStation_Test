@@ -6,6 +6,7 @@ import org.avegarlabs.userservice.dto.UserModel;
 import org.avegarlabs.userservice.models.User;
 import org.avegarlabs.userservice.models.enums.UserRoles;
 import org.avegarlabs.userservice.repositories.UserRepository;
+import org.avegarlabs.userservice.services.client.ChargeStationClientService;
 import org.avegarlabs.userservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,7 +25,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-   ChargeStationClientService clientService;
+    ChargeStationClientService clientService;
 
 
     @Autowired

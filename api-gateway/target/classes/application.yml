@@ -26,7 +26,11 @@ spring:
           predicates:
             - Path=/api/public/**
 
-
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
 
 
   application:
@@ -36,3 +40,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka:admin@localhost:8761/eureka
+
+

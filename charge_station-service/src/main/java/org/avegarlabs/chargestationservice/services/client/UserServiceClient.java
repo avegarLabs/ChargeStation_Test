@@ -19,6 +19,6 @@ public class UserServiceClient {
     public UserListItem fecthUserData(String userId, String authorizationToken){
         interceptor.setToken(authorizationToken);
         template.setInterceptors(Collections.singletonList(interceptor));
-        return template.getForObject("http://localhost:8086/api/user/check?id="+userId, UserListItem.class);
+        return template.getForObject("http://user-service/api/user/check?id="+userId, UserListItem.class);
     }
 }

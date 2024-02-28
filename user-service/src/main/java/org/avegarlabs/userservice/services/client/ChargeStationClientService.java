@@ -1,4 +1,4 @@
-package org.avegarlabs.userservice.services;
+package org.avegarlabs.userservice.services.client;
 
 import org.avegarlabs.userservice.dto.ChargeStationUseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class ChargeStationClientService {
         List<ChargeStationUseResponse> list = new ArrayList<>();
         ChargeStationUseResponse[] useList = webClientBuilder.build()
                 .get()
-                .uri("http://localhost:8085/api/station/" + userId + "/charges")
+                .uri("http://charge-station-service/api/station/" + userId + "/charges")
                 .retrieve()
                 .bodyToMono(ChargeStationUseResponse[].class)
                 .block();
