@@ -62,6 +62,17 @@ public class ChargeStationController {
 
     }
 
+    @GetMapping("/modify/{id}")
+    public ResponseEntity<Object> modifiedStatuofStations(@PathVariable String id) {
+        try {
+            ChargeStationListItems item = service.updateStationState(id);
+            return ResponseEntity.status(HttpStatus.OK).body(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage("Internal Server Error"));
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> removeStation(@PathVariable String id) {
         try {

@@ -2,23 +2,32 @@ package org.avegarlabs.userservice.services;
 
 import org.avegarlabs.userservice.dto.ChargeStationUseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class ChargeStationClientService {
 
     @Autowired
-    @LoadBalanced
-    private RestTemplate template;
+    WebClient.Builder webClientBuilder;
 
     public List<ChargeStationUseResponse> fecthUserActivity(String userId){
-        return Collections.singletonList(template.getForObject("http://localhost:8085/api/station/" + userId + "/charges", ChargeStationUseResponse.class));
+
+        List<ChargeStationUseResponse> list = new ArrayList<>();
+        ChargeStationUseResponse[] useList = webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8085/api/station/" + userId + "/charges")
+                .retrieve()
+                .bodyToMono(ChargeStationUseResponse[].class)
+                .block();
+        if(useList != null) {
+            list = Arrays.stream(useList).toList();
+        }
+        return list;
     }
 
 }

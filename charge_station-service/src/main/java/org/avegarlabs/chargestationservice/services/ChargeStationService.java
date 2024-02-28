@@ -8,6 +8,7 @@ import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
 import org.avegarlabs.chargestationservice.repositories.ChargeStationRepository;
 import org.avegarlabs.chargestationservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,15 @@ public class ChargeStationService {
 
 
     public List<ChargeStationListItems> allStations() {
+        List<ChargeStation> list = repository.findAll();
+        return list.stream().map(this::mapChargeStationToChargeStationListItems).collect(Collectors.toList());
+    }
+
+    /**
+     * Test by public controller
+     * @return List<ChargeStationListItems>
+     */
+    public List<ChargeStationListItems> allStationsOpen() {
         List<ChargeStation> list = repository.findAll();
         return list.stream().map(this::mapChargeStationToChargeStationListItems).collect(Collectors.toList());
     }
@@ -57,16 +67,17 @@ public class ChargeStationService {
         return mapChargeStationToChargeStationListItems(station);
     }
 
+    @Cacheable(value = "statusStation", key = "#id", unless = "#result == null")
     public String getChargeStationStatus(String id) {
         Optional<ChargeStation> chargeStation = repository.findById(id);
         if (chargeStation.isEmpty()) {
             throw new RuntimeException("Station with id: " + id + "not found");
         } else {
-            return chargeStation.get().getStatus().name();
+            return chargeStation.get().getStatus().getDisplayName();
         }
     }
 
-    public ChargeStationListItems getByMoniker(String moniker){
+    public ChargeStationListItems getByMoniker(String moniker) {
         Optional<ChargeStation> chargeStation = repository.findByMoniker(moniker);
         if (chargeStation.isEmpty())
             throw new RuntimeException("Station with moniker: " + moniker + "not found");
@@ -84,6 +95,25 @@ public class ChargeStationService {
                 .chargerType(station.getChargerType().name())
                 .numberOfChargingPoints(station.getNumberOfChargingPoints())
                 .status(station.getStatus().getDisplayName())
+                .moniker(station.getMoniker())
+                .build();
+    }
+
+    /**
+     * This method is a variation of original map function mapChargeStationToChargeStationListItems
+     * @param station
+     * @return
+     */
+    public ChargeStationListItems mapChargeStationToChargeStationListItemsTest(ChargeStation station) {
+        return ChargeStationListItems.builder()
+                .id(station.getId())
+                .description(station.getDescription())
+                .address(station.getAddress())
+                .longitude(station.getLongitude())
+                .latitude(station.getLatitude())
+                .chargerType(station.getChargerType().name())
+                .numberOfChargingPoints(station.getNumberOfChargingPoints())
+                .status(null)
                 .moniker(station.getMoniker())
                 .build();
     }

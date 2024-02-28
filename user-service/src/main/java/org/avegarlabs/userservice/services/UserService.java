@@ -8,6 +8,7 @@ import org.avegarlabs.userservice.models.enums.UserRoles;
 import org.avegarlabs.userservice.repositories.UserRepository;
 import org.avegarlabs.userservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    ChargeStationClientService clientService;
+   ChargeStationClientService clientService;
+
 
     @Autowired
     CreateMoniker moniker;
@@ -51,6 +53,15 @@ public class UserService {
         Optional<User> user = repository.findByMoniker(moniker);
         if (user.isEmpty())
             throw new RuntimeException(" User with moniker: " + moniker + " not found");
+
+        return mapUserToUserListItem(user.get());
+    }
+
+    @Cacheable(value = "activeUser", unless = "#result == null")
+    public UserListItem getByName(String username){
+        Optional<User> user = repository.findByUsername(username);
+        if (user.isEmpty())
+            throw new RuntimeException(" User with name: " + username + " not found");
 
         return mapUserToUserListItem(user.get());
     }

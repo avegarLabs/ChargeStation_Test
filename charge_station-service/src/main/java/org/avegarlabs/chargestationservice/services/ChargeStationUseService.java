@@ -36,7 +36,6 @@ public class ChargeStationUseService {
         ChargeStationUse station = mapChargeStationUseModelToChargeStationUse(stationModel, token);
         ChargeStationListItems item =  stationService.updateStationState(station.getStation().getId());
         repository.save(station);
-        log.info("Update Station State", item.getStatus());
         return item;
     }
 
