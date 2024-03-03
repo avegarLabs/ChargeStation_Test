@@ -1,0 +1,181 @@
+version: "3.9"
+
+services:
+  mysql-database:
+    container_name: mysql-database
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: stationdb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    networks:
+      - ev-network
+    restart: always
+
+  mongodb-database:
+    container_name: mongodb-database
+    image: mongo:latest
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    networks:
+      - ev-network
+    restart: always
+    
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - ev-network
+    restart: always
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - ev-network
+    restart: always
+
+  broker:
+      image: confluentinc/cp-kafka:7.0.1
+      container_name: broker
+      ports:
+        - "9092:9092"
+      depends_on:
+        - zookeeper
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      networks:
+        - ev-network
+      restart: always
+
+  discovery-server:
+    image: 'discovery-server:1.0.0'
+    build: 
+      context: ./discovery-server
+    container_name: discovery-server
+    hostname: discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      - ZIPKIN_CLIENT=http://zipkin:9411
+    depends_on:
+      - zipkin
+    networks:
+      - ev-network
+    restart: always
+
+  api-gateway:
+    image: 'api-gateway:1.0.0'
+    build: 
+      context: ./api-gateway
+    container_name: api-gateway
+    hostname: api-gateway
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - ZIPKIN_CLIENT=http://zipkin:9411
+    depends_on:
+      - zipkin
+      - discovery-server
+    networks:
+      - ev-network
+    restart: always
+
+  user-service:
+    image: 'user-service:1.0.0'
+    build: 
+      context: ./user-service
+    container_name: user-service
+    hostname: user-service
+    environment:
+      - MONGODB_HOST=mongodb-database
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=dbusers
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - ZIPKIN_CLIENT=http://zipkin:9411
+    ports:
+      - "8086:8086"
+    expose:
+      - "8086"
+    depends_on:
+      - mongodb-database
+      - zipkin
+      - discovery-server
+      - api-gateway
+    networks:
+      - ev-network
+    restart: always
+
+  charge-station-service:
+    image: 'charge-station-service:1.0.0'
+    build: 
+      context: ./charge_station-service
+    container_name: charge-station-service
+    hostname: charge-station-service
+    environment:
+      - MYSQL_DATABASE=jdbc:mysql://mysql-database:3306/stationdb
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - ZIPKIN_CLIENT=http://zipkin:9411
+      - BROKER_SERVICE=broker:29092
+    ports:
+      - "8085:8085"
+    expose:
+      - "8085"
+    depends_on:
+      - mysql-database
+      - discovery-server
+      - api-gateway
+      - zipkin
+      - notification-service
+    networks:
+      - ev-network
+    restart: always
+
+  notification-service:
+    image: 'notification-service:1.0.0'
+    build:
+      context: ./notification-service
+    container_name: notification-service
+    hostname: notification-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - ZIPKIN_CLIENT=http://zipkin:9411
+      - BROKER_SERVICE=broker:29092
+    depends_on:
+      - zipkin
+      - broker
+      - discovery-server
+    networks:
+      - ev-network
+    restart: always
+
+networks: 
+  ev-network:
+    driver: bridge
+ 
