@@ -20,6 +20,7 @@
         <module>api-gateway</module>
         <module>user-service</module>
         <module>charge_station-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>

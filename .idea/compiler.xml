@@ -10,15 +10,21 @@
         <module name="api-gateway" />
         <module name="discovery-server" />
         <module name="user-service" />
+        <module name="notification-service" />
         <module name="charge_station-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ite" target="11" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="charge_station-service" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
+      <module name="ite" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>

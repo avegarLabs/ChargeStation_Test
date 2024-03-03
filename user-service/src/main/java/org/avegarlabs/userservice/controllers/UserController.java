@@ -11,7 +11,6 @@ import org.avegarlabs.userservice.util.SuccessMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +26,6 @@ public class UserController {
     UserService service;
 
     @GetMapping("/list")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Object> getUsers() {
         try {
             List<UserListItem> listItems = service.allUsers();
@@ -38,7 +36,6 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Object> removeStation(@PathVariable String id) {
         try {
             service.deleteUser(id);
@@ -50,7 +47,6 @@ public class UserController {
     }
 
     @GetMapping("/check")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> validateToken(@RequestParam("id") String id) {
         try {
             UserListItem userListItem = service.getById(id);
@@ -61,7 +57,6 @@ public class UserController {
         }
     }
     @GetMapping("/activity/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> userActivity(@PathVariable String id) {
         try {
             List<ChargeStationUseResponse> userChargesList = service.getChargesByUser(id);
@@ -72,7 +67,6 @@ public class UserController {
     }
 
     @GetMapping("/details/{moniker}")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> findByMoniker(@PathVariable String moniker) {
         try {
             UserListItem user = service.getByMoniker(moniker);

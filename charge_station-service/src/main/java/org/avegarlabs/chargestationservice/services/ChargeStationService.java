@@ -3,12 +3,14 @@ package org.avegarlabs.chargestationservice.services;
 import lombok.extern.slf4j.Slf4j;
 import org.avegarlabs.chargestationservice.dto.ChargeStationListItems;
 import org.avegarlabs.chargestationservice.dto.ChargeStationModel;
+import org.avegarlabs.chargestationservice.event.StationStatusEvent;
 import org.avegarlabs.chargestationservice.models.ChargeStation;
 import org.avegarlabs.chargestationservice.models.enums.ChargingStationStatus;
 import org.avegarlabs.chargestationservice.repositories.ChargeStationRepository;
 import org.avegarlabs.chargestationservice.util.CreateMoniker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,9 @@ public class ChargeStationService {
 
     @Autowired
     CreateMoniker moniker;
+
+    @Autowired
+    KafkaTemplate<String, StationStatusEvent> kafkaTemplate;
 
 
     public List<ChargeStationListItems> allStations() {
@@ -64,6 +69,8 @@ public class ChargeStationService {
             station.setStatus(ChargingStationStatus.AVAILABLE);
         }
         repository.save(station);
+        String status = station.getDescription() + " change state to: " + station.getStatus().getDisplayName();
+        kafkaTemplate.send("notificationTopic", new StationStatusEvent(status));
         return mapChargeStationToChargeStationListItems(station);
     }
 

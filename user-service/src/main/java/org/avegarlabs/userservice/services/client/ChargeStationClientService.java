@@ -20,7 +20,7 @@ public class ChargeStationClientService {
         List<ChargeStationUseResponse> list = new ArrayList<>();
         ChargeStationUseResponse[] useList = webClientBuilder.build()
                 .get()
-                .uri("http://charge-station-service/api/station/" + userId + "/charges")
+                .uri("http://charge-station-service:8085/api/station/" + userId + "/charges")
                 .retrieve()
                 .bodyToMono(ChargeStationUseResponse[].class)
                 .block();
